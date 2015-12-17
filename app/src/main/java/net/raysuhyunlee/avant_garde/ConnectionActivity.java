@@ -15,6 +15,7 @@ import app.akexorcist.bluetotohspp.library.DeviceList;
 
 public class ConnectionActivity extends AppCompatActivity {
     BluetoothService bluetoothService;
+    ServiceConnection connection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,8 @@ public class ConnectionActivity extends AppCompatActivity {
 
         // bind BluetoothService
         Intent intent = new Intent(this, BluetoothService.class);
-        bindService(intent, new ServiceConnection() {
+        //startService(intent);
+        connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 bluetoothService = ((BluetoothService.BluetoothBinder) service).getService();
@@ -45,7 +47,8 @@ public class ConnectionActivity extends AppCompatActivity {
             public void onServiceDisconnected(ComponentName name) {
                 bluetoothService = null;
             }
-        }, BIND_AUTO_CREATE);
+        };
+        bindService(intent, connection, BIND_AUTO_CREATE);
 
     }
 
@@ -54,6 +57,9 @@ public class ConnectionActivity extends AppCompatActivity {
         if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
             if(resultCode == Activity.RESULT_OK) {
                 bluetoothService.connect(data);
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
             }
         } /*else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
             if(resultCode == Activity.RESULT_OK) {
@@ -65,5 +71,9 @@ public class ConnectionActivity extends AppCompatActivity {
         }*/
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+    }
 }
