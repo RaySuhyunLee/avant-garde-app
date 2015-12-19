@@ -28,8 +28,10 @@ public class ConnectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // open bluetooth device list
-                Intent intent = new Intent(getApplicationContext(), DeviceList.class);
-                startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+                //Intent intent = new Intent(getApplicationContext(), DeviceList.class);
+                //startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
             }
         });
 
