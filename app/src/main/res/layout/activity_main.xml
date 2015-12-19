@@ -17,4 +17,9 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="+"/>
+
+    <ImageView
+        android:id="@+id/imageViewTest"
+        android:layout_width="match_parent"
+        android:layout_height="12px" />
 </RelativeLayout>

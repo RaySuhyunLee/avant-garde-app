@@ -5,18 +5,24 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 
 import net.raysuhyunlee.avant_garde.DB.FingerMap;
+import net.raysuhyunlee.avant_garde.DB.FontHelper;
 import net.raysuhyunlee.avant_garde.DB.Situation;
 
 import java.util.ArrayList;
@@ -112,6 +118,25 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager = (ViewPager)findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                FingersFragment item = (FingersFragment)adapter.getItem(position);
+                Situation situation = item.situation;
+                sendSituation(situation);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     private List<Situation> getSituations() {
@@ -139,5 +164,20 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(f, "");
         adapter.notifyDataSetChanged();
         viewPager.setCurrentItem(adapter.getCount()-1);
+    }
+
+    private void sendSituation(Situation situation) {
+        List<FingerMap> fingerMaps = situation.getFingerMaps();
+        Bitmap b = FontHelper.textAsBitmap(fingerMaps.get(0).sentence, 5, Color.argb(255, 255, 0, 0));
+        boolean[][] bytes = new boolean[b.getHeight()][b.getWidth()];
+        for(int i=0; i<b.getHeight(); i++) {
+            for(int j=0; j<b.getWidth(); j++) {
+                int pixel = b.getPixel(j, i);
+                bytes[i][j] = (b.getPixel(j, i) == 0);
+            }
+        }
+        //Toast.makeText(this, "width: " + b.getWidth() + ", height: " + b.getHeight(), Toast.LENGTH_SHORT).show();
+        ImageView imageViewTest = (ImageView)findViewById(R.id.imageViewTest);
+        imageViewTest.setImageBitmap(b);
     }
 }
