@@ -26,8 +26,6 @@
         <activity android:name="app.akexorcist.bluetotohspp.library.DeviceList" />
         <service android:name=".BluetoothService" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".EditFingersActivity" />
-        <activity android:name=".NewSituationActivity" />
     </application>
 
 </manifest>

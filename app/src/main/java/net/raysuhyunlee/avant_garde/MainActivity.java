@@ -1,7 +1,8 @@
 package net.raysuhyunlee.avant_garde;
 
-import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.activeandroid.query.Select;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     BluetoothService bluetoothService;
     ServiceConnection connection;
 
+    ViewPager viewPager;
     SimpleFragmentPagerAdapter adapter;
 
     @Override
@@ -64,8 +67,29 @@ public class MainActivity extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, NewSituationActivity.class);
-                startActivityForResult(intent, Api.REQUEST_NEW_FINGERS);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("새 모드");
+                builder.setPositiveButton("추가", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AlertDialog d = (AlertDialog) dialog;
+                        EditText editTextName = (EditText) d.findViewById(R.id.editTextName);
+                        addSituation(editTextName.getText().toString());
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                // set dialog layout
+                View dialogView = getLayoutInflater()
+                        .inflate(R.layout.dialog_new_situation, null);
+                builder.setView(dialogView);
+                builder.show();
             }
         });
     }
@@ -74,21 +98,6 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         unbindService(connection);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int respondCode, Intent data) {
-        if (requestCode == Api.REQUEST_NEW_FINGERS) {
-            if (respondCode == RESULT_OK) {
-                String situationName = data.getStringExtra(Api.EXTRA_SITUATION_NAME);
-
-                FingersFragment f = new FingersFragment();
-                f.situation = new Select().from(Situation.class)
-                        .where("Name = ?", situationName).executeSingle();
-                adapter.addFragment(f, "");
-                adapter.notifyDataSetChanged();
-            }
-        }
     }
 
     private void loadFragments(List<Situation> situations) {
@@ -101,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             adapter.addFragment(f, situation.name);
         }
 
-        ViewPager viewPager = (ViewPager)findViewById(R.id.viewPager);
+        viewPager = (ViewPager)findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
     }
 
@@ -111,5 +120,24 @@ public class MainActivity extends AppCompatActivity {
             situations = new ArrayList<>();
         }
         return situations;
+    }
+
+    private void addSituation(String situationName) {
+        Situation situation = new Situation();
+        situation.name = situationName;
+        situation.save();
+        for(int i=1; i<(int)Math.pow(2, 4); i++) {
+            boolean[] booleans = new boolean[4];
+            for(int j=0; j<booleans.length; j++)
+                booleans[j] = ((i >> j) % 2) == 1;
+            FingerMap fingerMap = new FingerMap(booleans, "상용구를 지정하세요!", situation.getId());
+            fingerMap.save();
+        }
+
+        FingersFragment f = new FingersFragment();
+        f.situation = situation;
+        adapter.addFragment(f, "");
+        adapter.notifyDataSetChanged();
+        viewPager.setCurrentItem(adapter.getCount()-1);
     }
 }
