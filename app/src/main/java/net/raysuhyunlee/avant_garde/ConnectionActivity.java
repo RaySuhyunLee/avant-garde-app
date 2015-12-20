@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 import app.akexorcist.bluetotohspp.library.DeviceList;
@@ -28,12 +30,14 @@ public class ConnectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // open bluetooth device list
-                //Intent intent = new Intent(getApplicationContext(), DeviceList.class);
-                //startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), DeviceList.class);
+                startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+                //Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                //startActivity(intent);
             }
         });
+
+        final TextView textViewBluetooth = (TextView)findViewById(R.id.textViewBluetooth);
 
         // bind BluetoothService
         Intent intent = new Intent(this, BluetoothService.class);
@@ -43,11 +47,13 @@ public class ConnectionActivity extends AppCompatActivity {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 bluetoothService = ((BluetoothService.BluetoothBinder) service).getService();
                 buttonConnect.setEnabled(true);
+                textViewBluetooth.setText("블루투스 서비스가 연결되었습니다.");
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 bluetoothService = null;
+                textViewBluetooth.setText("블루투스 서비스가 연결되지 않았습니다.");
             }
         };
         bindService(intent, connection, BIND_AUTO_CREATE);

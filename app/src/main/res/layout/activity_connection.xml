@@ -9,6 +9,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ConnectionActivity">
 
+    <TextView
+        android:id="@+id/textViewBluetooth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="블루투스 서비스가 연결되지 않았습니다."/>
+
     <Button
         android:id="@+id/buttonConnect"
         android:layout_width="wrap_content"

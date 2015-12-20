@@ -75,4 +75,13 @@ public class BluetoothService extends Service {
     public void setOnDataReceivedListener(BluetoothSPP.OnDataReceivedListener listener) {
         bt.setOnDataReceivedListener(listener);
     }
+
+    public void write(byte[] data, boolean CRLF) {
+        bt.send(data, CRLF);
+
+    }
+
+    public void write(String data, boolean CRLF) {
+        bt.send(data, CRLF);
+    }
 }

@@ -25,6 +25,7 @@ import net.raysuhyunlee.avant_garde.DB.FingerMap;
 import net.raysuhyunlee.avant_garde.DB.FontHelper;
 import net.raysuhyunlee.avant_garde.DB.Situation;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 FingersFragment item = (FingersFragment)adapter.getItem(position);
                 Situation situation = item.situation;
-                sendSituation(situation);
+                sendSituation(situation, position);
             }
 
             @Override
@@ -166,18 +167,34 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setCurrentItem(adapter.getCount()-1);
     }
 
-    private void sendSituation(Situation situation) {
+    private void sendSituation(Situation situation, int position) {
         List<FingerMap> fingerMaps = situation.getFingerMaps();
-        Bitmap b = FontHelper.textAsBitmap(fingerMaps.get(0).sentence, 5, Color.argb(255, 255, 0, 0));
-        boolean[][] bytes = new boolean[b.getHeight()][b.getWidth()];
-        for(int i=0; i<b.getHeight(); i++) {
-            for(int j=0; j<b.getWidth(); j++) {
+        Bitmap b = FontHelper.textAsBitmap(this, fingerMaps.get(0).sentence, 8, Color.argb(255, 0, 0, 255));
+        byte[] bytes = new byte[b.getWidth() * b.getHeight() + 2];
+        //bytes[0] = 's';
+        //bytes[bytes.length - 1] = 'e';
+        /*for(int i=0; i<b.getHeight(); i++) {
+          8  for(int j=0; j<b.getWidth(); j++) {
                 int pixel = b.getPixel(j, i);
-                bytes[i][j] = (b.getPixel(j, i) == 0);
+                bytes[i * b.getWidth() + j + 1] = (byte)(b.getPixel(j, i) % 0x100);
             }
-        }
-        //Toast.makeText(this, "width: " + b.getWidth() + ", height: " + b.getHeight(), Toast.LENGTH_SHORT).show();
+        }*/
+        int[] intArray = new int[b.getWidth() * b.getHeight()];
+        b.getPixels(intArray, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
+        char[] charArray = new char[intArray.length];
+        for(int i=0; i<charArray.length; i++)
+            charArray[i] = (intArray[i] % 256) == 0 ? '0' : '1';
         ImageView imageViewTest = (ImageView)findViewById(R.id.imageViewTest);
         imageViewTest.setImageBitmap(b);
+
+        //String value = "s" + String.valueOf(charArray) + "e";
+
+        //bluetoothService.write(value.getBytes(),false);
+
+//        bluetoothService.write("s", false);
+//        bluetoothService.write(String.valueOf(charArray), false);
+//        bluetoothService.write("e", false);
+        String pos = "" + position;
+        bluetoothService.write(pos, false);
     }
 }
